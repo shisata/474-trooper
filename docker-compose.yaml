@@ -1,0 +1,9 @@
+version: '3'
+services:
+
+  azure-trooper-front:
+    build: ./azure-trooper
+    image: azure-trooper-front
+    container_name: azure-trooper-front
+    ports:
+        - "8080:80"

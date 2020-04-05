@@ -1,0 +1,63 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: azure-trooper-back
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: azure-trooper-back
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-trooper-back
+spec:
+  ports:
+  - port: 6379
+  selector:
+    app: azure-trooper-back
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: azure-trooper-front
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5 
+  template:
+    metadata:
+      labels:
+        app: azure-trooper-front
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: azure-trooper-front
+        image: cr1379.azurecr.io/azure-trooper-front:v1
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            cpu: 250m
+          limits:
+            cpu: 500m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: azure-trooper-front
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: azure-trooper-front
